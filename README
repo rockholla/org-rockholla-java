@@ -1,3 +1,6 @@
+The Rockholla.org Java Library
+-----------------------------------------------------------
+
 /**
  * 
  *	This is free software: you can redistribute it and/or modify
@@ -14,34 +17,5 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *	 
  */
-package org.rockholla.xml;
 
-/**
- * Exception related to an XmlDocument.isValid attempt
- * 
- * @author rockholla
- *
- */
-public class XmlValidationException extends Exception 
-{
-
-	private static final long serialVersionUID = 1L;
-
-	public XmlValidationException() {}
-
-	public XmlValidationException(String message) 
-	{
-		super(message);
-	}
-
-	public XmlValidationException(Throwable cause) 
-	{
-		super(cause);
-	}
-
-	public XmlValidationException(String message, Throwable cause) 
-	{
-		super(message, cause);
-	}
-
-}
+Anyone can use this library.  Please let me know if you're interested becoming a collaborator.
