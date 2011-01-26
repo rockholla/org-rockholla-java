@@ -1,20 +1,27 @@
 package org.rockholla.array;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
+import org.rockholla.TestHelper;
 
 public class ArrayUtilityTest 
 {
+	
+	@Rule public TestName name = new TestName();
+	final Logger logger = Logger.getLogger(ArrayUtilityTest.class);
 
 	@Test
 	public void testFind() 
 	{
 		
-		System.out.println("-------------- Running ArrayUtilityTest.testFind ... ---------------");
+		logger.info(TestHelper.getRunningMethodNotification(name.getMethodName()));
 		ArrayList<Object> list = new ArrayList<Object>();
 		
 		Color one = new Color(16777215);
@@ -32,36 +39,36 @@ public class ArrayUtilityTest
 		
 		// Testing finding the exact object
 		result = ArrayUtility.find(four, list);
-		System.out.println("Result of trying to find 'four': " + result);
+		logger.info("Result of trying to find 'four': " + result);
 		assertTrue(result == 3);
 		
 		// Testing search for different object, but with same construction in certain cases, as is the case with a 'Color' (same RGB value)
 		result = ArrayUtility.find(five, list);
-		System.out.println("Result of trying to find 'five': " + result);
+		logger.info("Result of trying to find 'five': " + result);
 		assertTrue(result == 1);
 		
 		// Testing search for a totally different kind of thing
 		result = ArrayUtility.find("a string", list);
-		System.out.println("Result of trying to find a string: " + result);
+		logger.info("Result of trying to find a string: " + result);
 		assertTrue(result == -1);
 		
 		// Now let's make sure the overloaded one works, to find within an array
-		System.out.println("Now testing the overloaded find method with a search w/in a native array...");
+		logger.info("Now testing the overloaded find method with a search w/in a native array...");
 		
 		Color[] array = {one, two, three, four};
 		// Testing finding the exact object
 		result = ArrayUtility.find(four, array);
-		System.out.println("Result of trying to find 'four': " + result);
+		logger.info("Result of trying to find 'four': " + result);
 		assertTrue(result == 3);
 		
 		// Testing search for different object, but with same construction in certain cases, as is the case with a 'Color' (same RGB value)
 		result = ArrayUtility.find(five, array);
-		System.out.println("Result of trying to find 'five': " + result);
+		logger.info("Result of trying to find 'five': " + result);
 		assertTrue(result == 1);
 		
 		// Testing search for a totally different kind of thing
 		result = ArrayUtility.find("a string", array);
-		System.out.println("Result of trying to find a string: " + result);
+		logger.info("Result of trying to find a string: " + result);
 		assertTrue(result == -1);
 		
 	}

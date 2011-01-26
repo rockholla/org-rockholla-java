@@ -3,11 +3,7 @@
  *	This is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
-<<<<<<< HEAD
  *  (at your option) any later version.
-=======
- *   (at your option) any later version.
->>>>>>> 6898fe5c5ac2ca005987ea3ea2cc9a29d6604156
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -30,10 +26,6 @@ import org.apache.log4j.Logger;
 /**
  * Utility for working with command line and shell tasks
  * 
-<<<<<<< HEAD
- * 
-=======
->>>>>>> 6898fe5c5ac2ca005987ea3ea2cc9a29d6604156
  * @author rockholla
  *
  */
@@ -51,7 +43,8 @@ public class ShellUtility
 	 * @throws Exception
 	 */
 	public static ArrayList<String> run(String...args) throws Exception
-	{			
+	{	
+		
 		ArrayList<String> results = new ArrayList<String>();
 		ProcessBuilder processBuilder = new ProcessBuilder(args);
 		processBuilder.redirectErrorStream(true);
@@ -66,6 +59,7 @@ public class ShellUtility
 		}
  
 		return results;
+		
 	}
 	
 	/**
@@ -76,6 +70,7 @@ public class ShellUtility
 	 */
 	public static void runInNewThread(String...args) throws Exception
 	{
+		
 		class ShellThread implements Runnable
 		{
 			public String[] args;
@@ -96,15 +91,7 @@ public class ShellUtility
 		shellThread.args = args;
 		Thread newThread = new Thread(shellThread);
 		newThread.start();
-	}
-	
-	public static void main(String[] args) throws Exception
-	{
-		ArrayList<String> results = run("sh", "-c", "/usr/local/mysql/bin/mysqldump -h localhost -u roots -p32watdod drupal | gzip > /Users/pbf2105/test.sql.gz");
-		for(String line : results)
-		{
-			System.out.println(line);
-		}
+		
 	}
 	
 }

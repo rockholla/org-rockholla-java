@@ -3,11 +3,7 @@
  *	This is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
-<<<<<<< HEAD
  *  (at your option) any later version.
-=======
- *   (at your option) any later version.
->>>>>>> 6898fe5c5ac2ca005987ea3ea2cc9a29d6604156
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,9 +20,11 @@ package org.rockholla.xml;
 import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
@@ -270,6 +268,138 @@ public class XmlDocument extends Document
 	}
 	
 	/**
+	 * Replaces an attribute or attributes in the document with another one
+	 * 
+	 * @param xPath		the XPath location of the attribute(s) to replace
+	 * @param attribute	the replacement attribute
+	 * @return			the list of resulting attribute replacements
+	 * @throws JDOMException
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Attribute> replace(String xPath, Attribute attribute) throws JDOMException
+	{
+		ArrayList<Attribute> replacements = new ArrayList<Attribute>();
+		List<Attribute> results = this.search(xPath);
+		for(Attribute result : results)
+		{
+			
+			if(result instanceof Attribute)
+			{
+				((Attribute) result).setName(attribute.getName());
+				((Attribute) result).setValue(attribute.getValue());
+				replacements.add((Attribute) result);
+			}
+			
+		}
+		return replacements;
+		
+	}
+	
+	/**
+	 * Replaces an element or elements in the document with another one
+	 * 
+	 * @param xPath		the XPath location of the elements(s) to replace
+	 * @param attribute	the replacement element
+	 * @return			the list of resulting element replacements
+	 * @throws JDOMException
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Element> replace(String xPath, Element element) throws JDOMException
+	{
+		
+		ArrayList<Element> replacements = new ArrayList<Element>();
+		List<Content> results = this.search(xPath);
+		for(Content result : results)
+		{
+			if(result instanceof Element)
+			{
+				((Element) result).removeContent();
+				result = removeAttributes((Element) result);
+				((Element) result).setName(element.getName());
+				for(Attribute attribute : (List<Attribute>) element.getAttributes())
+				{
+					((Element) result).setAttribute((Attribute) attribute.clone());
+				}
+				((Element) result).setContent(element.cloneContent());
+				
+				replacements.add((Element) result);
+			}
+		}
+		return replacements;
+		
+	}
+	
+	/**
+	 * Adds a list of children elements to the end of a parent element
+	 * 
+	 * @param parent	the parent element that will receive the children
+	 * @param children	the list of children elements to add
+	 */
+	public static void addChildren(Element parent, List<Element> children)
+	{
+		
+		for(Element element : children) 
+		{
+			parent.addContent((Element) element.clone());
+		}
+		
+	}
+	
+	/**
+	 * Adds a list of children elements to the end of a particular element location
+	 * within this document
+	 * 
+	 * @param parentXPath	the XPath location of the parent element to receive the children
+	 * @param children		the list of children elements to add
+	 * @throws JDOMException
+	 */
+	@SuppressWarnings({ "unchecked" })
+	public void addChildren(String parentXPath, List<Element> children) throws JDOMException
+	{
+		
+		List<Element> parents = (List<Element>) this.search(parentXPath);
+		for(Element parent : parents) 
+		{
+			addChildren(parent, children);
+		}
+		
+	}
+	
+	/**
+	 * Adds a single child element to the end of particular element location within this
+	 * document
+	 * 
+	 * @param parentXPath	the XPath location of the parent element to receive the child
+	 * @param child			the child to add
+	 * @throws JDOMException
+	 */
+	public void addChild(String parentXPath, Element child) throws JDOMException
+	{
+		
+		ArrayList<Element> children = new ArrayList<Element>();
+		children.add(child);
+		this.addChildren(parentXPath, children);
+		
+	}
+	
+	/**
+	 * Removes all attributes from a given element
+	 * 
+	 * @param element	the element
+	 * @return			the resulting element, with attributes removed
+	 */
+	public static Element removeAttributes(Element element)
+	{
+		
+		while(element.getAttributes().size() > 0)
+		{
+			element.removeAttribute((Attribute) element.getAttributes().get(0));
+		}
+		return element;
+		
+	}
+	
+	/**
 	 * Finds and returns node results from this XML document via an XPath search
 	 * 
 	 * @param xPath		the XPath search string
@@ -295,6 +425,138 @@ public class XmlDocument extends Document
 	public static Element createElement(String xmlString) throws XmlDocumentException
 	{
 		return new XmlDocument(xmlString).getRootElement();
+	}
+	
+	/**
+	 * Returns a string representation of an element's particular location within its
+	 * document
+	 * 
+	 * @param element	the element to examine
+	 * @return			a string representation of the elements document location
+	 */
+	@SuppressWarnings("unchecked")
+	public static String getDocumentPath(Element element) 
+	{
+		
+		String path = element.getName() + "["; 
+		for(Attribute attribute : (List<Attribute>) element.getAttributes()) 
+		{
+			path += "@" + attribute.getName() + "=\"" + attribute.getValue() + "\" ";
+		}
+		path = path.trim() + "]";
+		
+		Element parentElement = element.getParentElement();
+		while(parentElement != null) 
+		{
+			String elementInfo = parentElement.getName() + "[";
+			for(Attribute attribute : (List<Attribute>) parentElement.getAttributes()) 
+			{
+				elementInfo += "@" + attribute.getName() + "=\"" + attribute.getValue() + "\" ";
+			}
+			elementInfo = elementInfo.trim() + "]";
+			path += " < " + elementInfo;
+			parentElement = parentElement.getParentElement();
+		}
+		return path;
+		
+	}
+	
+	/**
+	 * Returns a string representation of a content's particular location within its
+	 * document
+	 * 
+	 * @param contentItem	the Content item
+	 * @return				a string representation the content item's document location
+	 */
+	public static String getDocumentPath(Content contentItem) 
+	{
+		
+		if(contentItem.getParentElement() != null) 
+		{
+			return contentItem.getClass().getName() + " < " + getDocumentPath(contentItem.getParentElement());
+		} 
+		else 
+		{
+			return contentItem.getClass().getName();
+		}
+		
+	}
+	
+	/**
+	 * Converts a HashMap Java object to an XML JDom Element like:
+	 * <pre>
+	 * &lt;rootElementName&gt;
+	 *      &lt;childElementNames name="1_1"&gt;
+	 *           &lt;childElementNames name="2_1" value="HashMap Value"/&gt;
+	 *           &lt;childElementNames name="2_2" value="HashMap Value"/&gt;
+	 *      &lt;/childElementNames&gt;
+	 * &lt;/rootElementName&gt;
+	 * </pre>
+	 * 
+	 * @param hashMap				the HashMap to convert
+	 * @param rootElementName		the root element name that will wrap the HashMap items converted to elements
+	 * @param childElementNames		the name of all constructed XML elements inside the root element
+	 * @param forceNamesUpperCase	whether the name attributes of the constructed XML elements will be forced uppercase (mimic CF StructToXml default)
+	 * @return						the constructed XML element wrapping the HashMap items converted to elements
+	 */
+	public static Element hashMapToElement(HashMap<String,Object> hashMap, String rootElementName, String childElementNames, boolean forceNamesUpperCase) 
+	{
+		
+		Element rootElement = new Element(rootElementName);
+		
+		Set<String> keys = hashMap.keySet();
+		Iterator<String> iterator = keys.iterator();
+		while(iterator.hasNext()) 
+		{
+			String key = iterator.next();
+			Element itemElement = hashMapItemToElement(key, hashMap.get(key), childElementNames, forceNamesUpperCase);
+			rootElement.addContent(itemElement);
+		}
+		
+		return rootElement;
+		
+	}
+	
+	/**
+	 * Converts a single HashMap to an XML JDom element
+	 * 
+	 * @param hashMapItemKey		the key or name of this HashMap item
+	 * @param hashMapItem			the HashMap item object
+	 * @param elementName			the XML element name
+	 * @param forceNamesUpperCase	whether the name attributes of the constructed XML elements will be forced uppercase (mimic CF StructToXml default)
+	 * @return						the constructed XML element representing the HashMap
+	 */
+	@SuppressWarnings("unchecked")
+	public static Element hashMapItemToElement(String hashMapItemKey, Object hashMapItem, String elementName, boolean forceNamesUpperCase) 
+	{
+		
+		Element itemElement = new Element(elementName);
+		
+		if(forceNamesUpperCase) 
+		{
+			itemElement.setAttribute("name", hashMapItemKey.toUpperCase());
+		} 
+		else 
+		{
+			itemElement.setAttribute("name", hashMapItemKey);
+		}
+		if(hashMapItem instanceof HashMap) 
+		{
+			Set<String> keys = ((HashMap<String,Object>) hashMapItem).keySet();
+			Iterator<String> iterator = keys.iterator();
+			while(iterator.hasNext()) 
+			{
+				String key = iterator.next();
+				itemElement.addContent(hashMapItemToElement(key, ((HashMap<String,Object>) hashMapItem).get(key), elementName, forceNamesUpperCase));
+			}
+		} 
+		else if(hashMapItem instanceof String) 
+		{
+			itemElement.setAttribute("value", (String) hashMapItem);
+		}
+		
+		return itemElement;
+		
 	}
 	
 	/**
