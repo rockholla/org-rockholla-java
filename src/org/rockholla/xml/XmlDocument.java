@@ -66,10 +66,13 @@ public class XmlDocument extends Document
 
 	private static final long serialVersionUID = 1L;
 	
+	/** Sets default encoding for any XML */
+	public static final String DEFAULT_ENCODING = "UTF-8";
+	
 	/** schema factory for validating the document */
 	protected SchemaFactory _schemaFactory;
 	/** the default encoding to use for reading and writing the document */
-	protected String _encoding = "UTF-8";
+	protected String _encoding = DEFAULT_ENCODING;
 
 	/**
 	 * Constructor
