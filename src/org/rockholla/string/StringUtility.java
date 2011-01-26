@@ -47,8 +47,8 @@ public class StringUtility
 	/**
 	 * Replaces all characters in a string that are non-alphanumeric with a designated string
 	 * 
-	 * @param string	a string that may include both non-alphanumeric and alphanumeric characters (excluding whitespace)
-	 * @param string	a character/string used in replacement
+	 * @param string		a string that may include both non-alphanumeric and alphanumeric characters (excluding whitespace)
+	 * @param replaceWith	a character/string used in replacement
 	 * @return	the string with only alphanumeric characters (and the replaced character that may be a non-alphanumeric)
 	 */
 	public static String replaceNonAlphanumerics(String string, String replaceWith) 

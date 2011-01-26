@@ -346,7 +346,7 @@ public class FileUtility
 	/**
 	 * Deletes a folder's contents
 	 * 
-	 * @param folderPath	the java.io.File folder to delete
+	 * @param folder			the java.io.File folder to delete
 	 * @param keepRootFolder	if true, only the contents will be deleted, false will delete the folder itself as well
 	 */
 	public static void deleteFolder(File folder, Boolean keepRootFolder) 
