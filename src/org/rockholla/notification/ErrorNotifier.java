@@ -3,11 +3,7 @@
  *	This is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
-<<<<<<< HEAD
  *  (at your option) any later version.
-=======
- *   (at your option) any later version.
->>>>>>> 6898fe5c5ac2ca005987ea3ea2cc9a29d6604156
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,8 +20,6 @@ package org.rockholla.notification;
 import java.io.File;
 
 import org.rockholla.file.FileUtility;
-
-
 
 /**
  * Generic error notification utility
@@ -44,11 +38,13 @@ public class ErrorNotifier
 	 */
 	public static void notify(String notification, File file)
 	{
+		
 		try
 		{
 			FileUtility.appendLineToFile(file.getAbsolutePath(), notification);
 		}
 		catch(Exception e) {}
+		
 	}
 	
 }

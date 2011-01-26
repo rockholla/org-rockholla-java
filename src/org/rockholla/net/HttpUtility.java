@@ -3,11 +3,7 @@
  *	This is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
-<<<<<<< HEAD
  *  (at your option) any later version.
-=======
- *   (at your option) any later version.
->>>>>>> 6898fe5c5ac2ca005987ea3ea2cc9a29d6604156
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -38,6 +34,15 @@ import com.Ostermiller.util.Base64;
 public class HttpUtility 
 {
 
+	/**
+	 * Performs an HTTP get
+	 * 
+	 * @param url		the URL to get
+	 * @param username	the HTTP username, if HTTP auth is in place for the URL
+	 * @param password	the HTTP password, if HTTP auth is in place for the URL
+	 * @return			the string content from the URL
+	 * @throws Exception
+	 */
 	public static String getUrlData(String url, String username, String password) throws Exception
 	{
 		URL urlObject = new URL(url);
@@ -60,10 +65,17 @@ public class HttpUtility
         return out;
 
 	}
-	
-//	public static void main(String[] args) throws Exception
-//	{
-//		System.out.println(getUrlData("http://seasnail.cc.columbia.edu:8181/solr/blackrock/admin/dataimport.jsp?handler=/forest-data-import", "blackrock", "75tromb15"));
-//	}
+
+	/**
+	 * Performs an HTTP get
+	 * 
+	 * @param url	the URL to get
+	 * @return		teh string content from the URL
+	 * @throws Exception
+	 */
+	public static String getUrlData(String url) throws Exception
+	{
+		return getUrlData(url, null, null);
+	}
 	
 }

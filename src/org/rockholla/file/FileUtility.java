@@ -3,11 +3,7 @@
  *	This is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
-<<<<<<< HEAD
  *  (at your option) any later version.
-=======
- *   (at your option) any later version.
->>>>>>> 6898fe5c5ac2ca005987ea3ea2cc9a29d6604156
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -105,7 +101,8 @@ public class FileUtility
 		StringBuffer stringBuffer = new StringBuffer();
 		String line = "";
 
-        while((line = bufferedReader.readLine()) != null) {
+        while((line = bufferedReader.readLine()) != null) 
+        {
         	stringBuffer.append(line);
         	stringBuffer.append(lineSep);
         }
@@ -142,7 +139,8 @@ public class FileUtility
 		String line = "";
 		ArrayList<String> lines = new ArrayList<String>();
 
-        while((line = bufferedReader.readLine()) != null) {
+        while((line = bufferedReader.readLine()) != null) 
+        {
         	lines.add(line);
         }
 		
@@ -230,7 +228,7 @@ public class FileUtility
 		
         /*
          * To convert the InputStream to String we use the BufferedReader.readLine()
-         * method. We iterate until the BufferedReader return null which means
+         * method. We iterate until the BufferedReader returns null which means
          * there's no more data to read. Each line will appended to a StringBuilder
          * and returned as String.
          */
@@ -339,8 +337,10 @@ public class FileUtility
 	 */
 	public static void deleteFolder(String folderPath, Boolean keepRootFolder) 
 	{
+		
 		File folderPathFiles = new File(folderPath);
 		deleteFolder(folderPathFiles, keepRootFolder);
+		
 	}
 	
 	/**
@@ -442,8 +442,8 @@ public class FileUtility
 	        for(int i=0; i<children.length; i++) 
 	        {
 	            copyFolder(new File(sourceLocation, children[i]),
-	                    new File(targetLocation, children[i]), 
-	                    excludeDirectories);
+	                       new File(targetLocation, children[i]), 
+	                       excludeDirectories);
 	        }
 	    } 
 	    else 
@@ -477,6 +477,7 @@ public class FileUtility
 		String[][] lines = CSVParser.parse(new StringReader(fileData));
 		
 		return lines;
+		
 	}
 	
 	/**
@@ -508,8 +509,10 @@ public class FileUtility
 	 */
 	public static String getBaseFileName(File file)
 	{
+		
 		if(file.isDirectory()) return file.getName();
 		return file.getName().substring(0, file.getName().lastIndexOf("."));
+		
 	}
 	
 	/**
@@ -576,6 +579,7 @@ public class FileUtility
 	 */
 	public static Boolean includesOption(OPTION option, OPTION ...args)
 	{
+		
 		for(OPTION arg : args)
 		{
 			if(option.equals(arg))
@@ -584,6 +588,7 @@ public class FileUtility
 			}
 		}
 		return false;
+		
 	}
 	
 	/**
@@ -632,22 +637,6 @@ public class FileUtility
 			return true;
 		}
 		return false;
-		
-	}
-	
-	public static void main(String[] args) 
-	{
-		
-		//System.out.println(folderExistsInPath("testing", "C:\\\\Users\\pbf2105\\testing\\Lets see this one\\andonemore"));
-		//System.out.println(folderExistsInPath("Lets see this one", "/Users/pbf2105/testing/Lets\\ see\\ this\\ one/andonemore"));
-		
-		/*for(File file : getFolderFiles("/Users/pbf2105/Eclipse/edu.columbia.blackrock.dataimporter/to-import/environmental-monitoring", OPTION.INCLUDE_ONLY_DIRECTORIES))
-		{
-			System.out.println(file.getPath());
-		}*/
-		
-		String folder = "to-import/environmental-monitoring";
-		System.out.println(folder.substring(0, folder.indexOf("/")));
 		
 	}
 	
