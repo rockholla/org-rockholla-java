@@ -299,7 +299,7 @@ public class XmlDocument extends Document
 	 * Replaces an element or elements in the document with another one
 	 * 
 	 * @param xPath		the XPath location of the elements(s) to replace
-	 * @param attribute	the replacement element
+	 * @param element	the replacement element
 	 * @return			the list of resulting element replacements
 	 * @throws JDOMException
 	 */
@@ -418,8 +418,8 @@ public class XmlDocument extends Document
 	/**
 	 * Creates an independent XML (JDOM) element
 	 * 
-	 * @param xmlString
-	 * @return
+	 * @param xmlString	an XML string representation of the element to create
+	 * @return			the resulting JDOM Element
 	 * @throws XmlDocumentException
 	 */
 	public static Element createElement(String xmlString) throws XmlDocumentException
