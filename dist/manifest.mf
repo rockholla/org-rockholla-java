@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Specification-Title: Rockholla.org Java Library
+Specification-Version: 0.1.0
+Specification-Vendor: rockholla.org
+Implementation-Title: Rockholla.org Java Library
+Implementation-Version: 0.1.0
+Implementation-Vendor: rockholla.org
