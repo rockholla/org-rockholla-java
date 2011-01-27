@@ -1,0 +1,4 @@
+CHANGE LOG
+------------------------------------------------------------------
+- 2011-01-27: 0.1.0
+	1) First pre-release.  I doubt the library as a whole is production ready, so will only implement minor releases below 1.0 prior to full unit testing.
