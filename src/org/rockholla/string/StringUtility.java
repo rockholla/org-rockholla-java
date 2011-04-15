@@ -16,6 +16,14 @@
 
 package org.rockholla.string;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -141,6 +149,64 @@ public class StringUtility
 	        }
 	    }
 	    return count;
+	}
+	
+	public static int count(String haystack, String needle)
+	{
+		int count = 0;
+		int index = 0;
+		while ((index = haystack.indexOf(needle, index)) != -1) 
+		{
+			index++;
+			count++;
+		}
+		return count;
+	}
+	
+	public static String getStringFromInputStream(InputStream is) throws IOException
+	{
+		
+		if(is != null) 
+		{
+            Writer writer = new StringWriter();
+
+            char[] buffer = new char[1024];
+            try 
+            {
+                Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                int n;
+                while((n = reader.read(buffer)) != -1) 
+                {
+                    writer.write(buffer, 0, n);
+                }
+            } 
+            finally 
+            {
+                is.close();
+            }
+            return writer.toString();
+        } 
+		else 
+		{        
+            return "";
+        }
+
+		
+	}
+	
+	public static String stackTraceToString(Exception e) 
+	{
+		try 
+		{
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+			return sw.toString();
+		} 
+		catch(Exception exception) 
+		{
+			return "";
+		}
 	}
 
 	

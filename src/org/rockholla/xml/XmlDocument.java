@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
@@ -46,6 +48,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.EntityRef;
 import org.jdom.JDOMException;
+import org.jdom.Namespace;
 import org.jdom.ProcessingInstruction;
 import org.jdom.Text;
 import org.jdom.input.SAXBuilder;
@@ -72,6 +75,9 @@ public class XmlDocument extends Document
 	protected SchemaFactory _schemaFactory;
 	/** the default encoding to use for reading and writing the document */
 	protected String _encoding = DEFAULT_ENCODING;
+	
+	/** the namespaces attached to the doc */
+	protected HashMap<String,String> namespaces = new HashMap<String,String>();
 
 	/**
 	 * Constructor
@@ -92,6 +98,21 @@ public class XmlDocument extends Document
 			SAXBuilder saxBuilder = new SAXBuilder();
 			Document newDocument = saxBuilder.build(new StringReader(xmlString));
 			this.setRootElement((Element) newDocument.getRootElement().clone());
+			
+			// Find namespace declarations
+			Pattern pattern = Pattern.compile("(xmlns(:?)(.*?)=\"(.*?)\").*?");
+			Matcher matcher = pattern.matcher(xmlString);
+			boolean matches = matcher.find();
+			while(matches)
+			{
+				String[] namespaceParts = matcher.group().split("=");
+				String namespaceId = namespaceParts[0].replace("xmlns:", "").trim();
+				namespaceId = namespaceId.replace("xmlns", "");
+				if(namespaceId.equals("")) namespaceId = "default";
+				String namespaceValue = namespaceParts[1].replace("\"", "").trim();
+				this.namespaces.put(namespaceId, namespaceValue);
+				matches = matcher.find();
+			}
 		} 
 		catch(Exception exception) 
 		{
@@ -413,7 +434,17 @@ public class XmlDocument extends Document
 	@SuppressWarnings("rawtypes")
 	public List search(String xPath) throws JDOMException 
 	{
-		List xPathResults = XPath.selectNodes(this, xPath);
+		
+		XPath xpath = XPath.newInstance(xPath); 
+		Iterator<String> iterator = this.namespaces.keySet().iterator();
+		while(iterator.hasNext())
+		{
+			String namespaceId = iterator.next();
+			Namespace namespace = Namespace.getNamespace(namespaceId, this.namespaces.get(namespaceId));
+			xpath.addNamespace(namespace);
+		}
+		
+		List xPathResults = xpath.selectNodes(this);
 		return xPathResults;
 	}
 	

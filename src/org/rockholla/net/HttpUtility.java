@@ -18,8 +18,13 @@ package org.rockholla.net;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+
+import org.apache.log4j.Logger;
 
 import com.Ostermiller.util.Base64;
 
@@ -33,12 +38,14 @@ import com.Ostermiller.util.Base64;
 public class HttpUtility 
 {
 
+	static final Logger logger = Logger.getLogger(HttpUtility.class);
+	
 	/**
-	 * Performs an HTTP get
+	 * Gets data from a URL
 	 * 
 	 * @param url		the URL to get
-	 * @param username	the HTTP username, if HTTP auth is in place for the URL
-	 * @param password	the HTTP password, if HTTP auth is in place for the URL
+	 * @param username	the username for HTTP authentication (if required)
+	 * @param password	the password for HTTP authentication (if required)
 	 * @return			the string content from the URL
 	 * @throws Exception
 	 */
@@ -69,12 +76,166 @@ public class HttpUtility
 	 * Performs an HTTP get
 	 * 
 	 * @param url	the URL to get
-	 * @return		teh string content from the URL
+	 * @return		the string content from the URL
 	 * @throws Exception
 	 */
 	public static String getUrlData(String url) throws Exception
 	{
 		return getUrlData(url, null, null);
+	}
+	
+	/**
+	 * Posts data to a URL
+	 * 
+	 * @param url			the URL to where data will be posted
+	 * @param contentType	the content type of the data to post
+	 * @param content		the actual content to post
+	 * @return				an org.rockholla.net.HttpResponse
+	 * @throws Exception
+	 */
+	public static HttpResponse postToUrl(String url, String contentType, String content) throws Exception
+	{
+		return postToUrl(url, contentType, content, null, null);
+	}
+	
+	/**
+	 * Posts data to a URL
+	 * 
+	 * @param url			the URL to where data will be posted
+	 * @param contentType	the content type of the data to post
+	 * @param content		the actual content to post
+	 * @param username		the username for HTTP authentication (if required)
+	 * @param password		the password for HTTP authentication (if required)
+	 * @return				an org.rockholla.net.HttpResponse
+	 * @throws Exception
+	 */
+	public static HttpResponse postToUrl(String url, String contentType, String content, String username, String password) throws Exception
+	{
+		return sendToUrl(url, contentType, content, "POST", username, password);
+	}
+	
+	/**
+	 * Puts data to a URL
+	 * 
+	 * @param url			the URL to where data will be put
+	 * @param contentType	the content type of the data to put
+	 * @param content		the actual content to put
+	 * @return				an org.rockholla.net.HttpResponse
+	 * @throws Exception
+	 */
+	public static HttpResponse putToUrl(String url, String contentType, String content) throws Exception
+	{
+		return putToUrl(url, contentType, content, null, null);
+	}
+	
+	/**
+	 * Puts data to a URL
+	 * 
+	 * @param url			the URL to where data will be put
+	 * @param contentType	the content type of the data to put
+	 * @param content		the actual content to put
+	 * @param username		the username for HTTP authentication (if required)
+	 * @param password		the password for HTTP authentication (if required)
+	 * @return				an org.rockholla.net.HttpResponse
+	 * @throws Exception
+	 */
+	public static HttpResponse putToUrl(String url, String contentType, String content, String username, String password) throws Exception
+	{
+		return sendToUrl(url, contentType, content, "PUT", username, password);
+	}
+	
+	/**
+	 * Sends data to a URL
+	 * 
+	 * @param url			the URL to where data will be sent
+	 * @param contentType	the content type of the data to send
+	 * @param content		the actual content to be sent
+	 * @param method		the HTTP method used in sending
+	 * @param username		the username for HTTP authentication (if required)
+	 * @param password		the password for HTTP authentication (if required)
+	 * @return				an org.rockholla.net.HttpResponse
+	 * @throws Exception
+	 */
+	private static HttpResponse sendToUrl(String url, String contentType, String content, String method, String username, String password) throws Exception
+	{
+		
+		logger.debug("Performing " + method + ": " + url);
+		URL urlObject = new URL(url);
+		HttpURLConnection urlConn = (HttpURLConnection) urlObject.openConnection();
+		urlConn.setRequestMethod(method);
+		urlConn.setAllowUserInteraction(false); // no user interact [like pop up]
+		urlConn.setDoOutput(true); // want to send
+		urlConn.setRequestProperty("Content-type", contentType);
+		urlConn.setRequestProperty("Content-length", Integer.toString(content.length()));
+		if(username != null && password != null)
+        {
+        	String encodedAuth = Base64.encode(username + ":" + password);
+        	urlConn.setRequestProperty("Authorization", "Basic " + encodedAuth);
+        }
+        OutputStream ost = urlConn.getOutputStream();
+        PrintWriter pw = new PrintWriter(ost);
+        pw.print(content); // here we "send" our body!
+        pw.flush();
+        pw.close();
+        
+        HttpResponse httpResponse = new HttpResponse();
+        int i = 1;// this will print all header parameter
+        String hKey;
+        while((hKey = urlConn.getHeaderFieldKey(i)) != null)
+        {	
+           String hVal = urlConn.getHeaderField(i);
+           httpResponse.headers.put(hKey, hVal);
+           i++;
+        }
+        //and InputStream from here will be body
+        BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+        String inputLine;
+        String out = "";
+        while ((inputLine = in.readLine()) != null)
+        {
+        	out += inputLine;
+        }
+        in.close();
+        
+        httpResponse.response = out;
+        
+        return httpResponse;
+        
+	}
+	
+	/**
+	 * Opens a URL in the user's default browser
+	 * 
+	 * @param url	the URL to open
+	 * @return		An error if encountered, otherwise null
+	 */
+	public static String openInBrowser(String url)
+	{
+		
+		if(!java.awt.Desktop.isDesktopSupported()) 
+		{
+            return "Desktop is not supported (fatal)";
+        }
+
+        java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+
+        if(!desktop.isSupported(java.awt.Desktop.Action.BROWSE)) 
+        {
+            return "Desktop doesn't support the browse action (fatal)";
+        }
+
+        try {
+
+            java.net.URI uri = new java.net.URI(url);
+            desktop.browse(uri);
+        }
+        catch (Exception e) 
+        {
+            return e.getMessage();
+        }
+
+		return null;
+		
 	}
 	
 }

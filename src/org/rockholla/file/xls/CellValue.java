@@ -107,6 +107,8 @@ public class CellValue
 			this._string = StringUtility.removeDuplicateWhitespace(this._string).toString();
 		}
 		
+		this._string = this._string.trim();
+		
 	}
 	
 	/**
