@@ -156,7 +156,7 @@ public class HttpUtility
 	 * @return				an org.rockholla.net.HttpResponse
 	 * @throws Exception
 	 */
-	private static HttpResponse sendToUrl(String url, String contentType, String content, String method, String username, String password) throws Exception
+	public static HttpResponse sendToUrl(String url, String contentType, String content, String method, String username, String password) throws Exception
 	{
 		
 		logger.debug("Performing " + method + ": " + url);
@@ -165,18 +165,24 @@ public class HttpUtility
 		urlConn.setRequestMethod(method);
 		urlConn.setAllowUserInteraction(false); // no user interact [like pop up]
 		urlConn.setDoOutput(true); // want to send
-		urlConn.setRequestProperty("Content-type", contentType);
-		urlConn.setRequestProperty("Content-length", Integer.toString(content.length()));
+		if(content != null)
+		{
+			urlConn.setRequestProperty("Content-type", contentType);
+			urlConn.setRequestProperty("Content-length", Integer.toString(content.length()));
+		}
 		if(username != null && password != null)
         {
         	String encodedAuth = Base64.encode(username + ":" + password);
         	urlConn.setRequestProperty("Authorization", "Basic " + encodedAuth);
         }
-        OutputStream ost = urlConn.getOutputStream();
-        PrintWriter pw = new PrintWriter(ost);
-        pw.print(content); // here we "send" our body!
-        pw.flush();
-        pw.close();
+		if(content != null)
+		{
+			OutputStream ost = urlConn.getOutputStream();
+	        PrintWriter pw = new PrintWriter(ost);
+	        pw.print(content); // here we "send" our body!
+	        pw.flush();
+	        pw.close();
+		}
         
         HttpResponse httpResponse = new HttpResponse();
         int i = 1;// this will print all header parameter

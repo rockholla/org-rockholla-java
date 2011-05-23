@@ -19,6 +19,7 @@ package org.rockholla.xml;
 import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,6 +33,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -52,6 +54,7 @@ import org.jdom.Namespace;
 import org.jdom.ProcessingInstruction;
 import org.jdom.Text;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.DOMOutputter;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
@@ -77,7 +80,10 @@ public class XmlDocument extends Document
 	protected String _encoding = DEFAULT_ENCODING;
 	
 	/** the namespaces attached to the doc */
-	protected HashMap<String,String> namespaces = new HashMap<String,String>();
+	protected HashMap<String,String> _namespaces = new HashMap<String,String>();
+	
+	/** the schema namespace */
+	protected String _schemaNamespace = XMLConstants.W3C_XML_SCHEMA_NS_URI;
 
 	/**
 	 * Constructor
@@ -108,9 +114,17 @@ public class XmlDocument extends Document
 				String[] namespaceParts = matcher.group().split("=");
 				String namespaceId = namespaceParts[0].replace("xmlns:", "").trim();
 				namespaceId = namespaceId.replace("xmlns", "");
-				if(namespaceId.equals("")) namespaceId = "default";
 				String namespaceValue = namespaceParts[1].replace("\"", "").trim();
-				this.namespaces.put(namespaceId, namespaceValue);
+				if(namespaceId.equals(""))
+				{
+					namespaceId = "default";
+				}
+				if(namespaceId.equals("schemaLocation"))
+				{
+					String[] valueParts = namespaceValue.split(" ");
+					this._schemaNamespace = valueParts[0];
+				}
+				this._namespaces.put(namespaceId, namespaceValue);
 				matches = matcher.find();
 			}
 		} 
@@ -162,6 +176,17 @@ public class XmlDocument extends Document
 	public XmlDocument(Element rootElement, DocType docType, String baseURI) 
 	{
 		super(rootElement, docType, baseURI);
+	}
+	
+	/**
+	 * Returns the org.w3c.Document object representation of this XML document
+	 * 
+	 * @return	org.w3c.Document
+	 * @throws JDOMException
+	 */
+	public org.w3c.dom.Document getAsw3cDocument() throws JDOMException 
+	{
+		return new DOMOutputter().output(this);
 	}
 	
 	/**
@@ -436,11 +461,11 @@ public class XmlDocument extends Document
 	{
 		
 		XPath xpath = XPath.newInstance(xPath); 
-		Iterator<String> iterator = this.namespaces.keySet().iterator();
+		Iterator<String> iterator = this._namespaces.keySet().iterator();
 		while(iterator.hasNext())
 		{
 			String namespaceId = iterator.next();
-			Namespace namespace = Namespace.getNamespace(namespaceId, this.namespaces.get(namespaceId));
+			Namespace namespace = Namespace.getNamespace(namespaceId, this._namespaces.get(namespaceId));
 			xpath.addNamespace(namespace);
 		}
 		
@@ -604,19 +629,48 @@ public class XmlDocument extends Document
 		
 		if(this._schemaFactory == null) 
 		{
-			this._schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+			this._schemaFactory = SchemaFactory.newInstance(this._schemaNamespace);
 		}
 		try 
 		{
 			File schemaFile = new File(schemaFileLocation);
 			Schema schema = this._schemaFactory.newSchema(schemaFile);
 			Validator validator = schema.newValidator();
-			Source source = new StreamSource(schemaFileLocation);
+			Source source = new DOMSource(this.getAsw3cDocument());
 			validator.validate(source);
 		} 
 		catch(Exception exception) 
 		{
 			throw new XmlValidationException("Error validating document against '" + schemaFileLocation + "'", exception);
+		}
+		return true;
+		
+	}
+	
+	/**
+	 * Determines the validity of this XML document based on the designated schema
+	 * 
+	 * @param schemaUrl				the URL object for the schema location
+	 * @return						true if it validates
+	 * @throws XmlValidationException
+	 */
+	public boolean isValid(URL schemaUrl) throws XmlValidationException
+	{
+		
+		if(this._schemaFactory == null) 
+		{
+			this._schemaFactory = SchemaFactory.newInstance(this._schemaNamespace);
+		}
+		try 
+		{
+			Schema schema = this._schemaFactory.newSchema(schemaUrl);
+			Validator validator = schema.newValidator();
+			Source source = new DOMSource(this.getAsw3cDocument());
+			validator.validate(source);
+		} 
+		catch(Exception exception) 
+		{
+			throw new XmlValidationException("Error validating document against '" + schemaUrl.toString() + "'", exception);
 		}
 		return true;
 		
