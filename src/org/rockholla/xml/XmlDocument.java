@@ -727,5 +727,10 @@ public class XmlDocument extends Document
 		return stringWriter.toString();
 		
 	}
+	
+	public static String removeDoctypeDefinition(String xmlString)
+	{
+		return xmlString.replaceFirst("<!DOCTYPE.*?>", "");
+	}
 
 }

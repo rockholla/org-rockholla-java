@@ -110,6 +110,11 @@ public class FileUtility
 		
 	}
 	
+	public static String getFileString(File file) throws IOException
+	{
+		return getFileString(file.getAbsolutePath());
+	}
+	
 	/**
 	 * Gets the lines of a file
 	 * 
